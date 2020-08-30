@@ -1,6 +1,7 @@
 set(UNIT_TEST_LIST
   stack_allocator
-  double_stack_allocator)
+  double_stack_allocator
+  pool_allocator)
 
 foreach(NAME IN LISTS UNIT_TEST_LIST)
   list(APPEND UNIT_TEST_SOURCE_LIST ${NAME}.test.cpp)

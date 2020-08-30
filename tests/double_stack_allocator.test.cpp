@@ -331,12 +331,12 @@ TEST_CASE("Double stack can clear memory", "double stack allocator") {
     allocator.AllocateLower(16);
     allocator.AllocateUpper(16);
     REQUIRE(allocator.GetLowerMarker() == 16);
-    REQUIRE(allocator.GetUpperMarker() == 58);
+    REQUIRE(allocator.GetUpperMarker() == 48);
 
     SECTION("Clear lower stack stack works properly") {
         allocator.ClearLower();
         REQUIRE(allocator.GetLowerMarker() == 0);
-        REQUIRE(allocator.GetUpperMarker() == 58);
+        REQUIRE(allocator.GetUpperMarker() == 48);
     }
 
     SECTION("Clear upper stack stack works properly") {
@@ -348,7 +348,7 @@ TEST_CASE("Double stack can clear memory", "double stack allocator") {
     SECTION("ClearAll works properly") {
         allocator.ClearAll();
         REQUIRE(allocator.GetLowerMarker() == 0);
-        REQUIRE(allocator.GetUpperMarker() == 0);
+        REQUIRE(allocator.GetUpperMarker() == 64);
     }
     
 }
