@@ -1,8 +1,8 @@
 #include <cassert>
 #include <iostream>
 
-#include "PoolAllocator.h"
-#include "StackAllocator.h"
+#include "pool_allocator.h"
+#include "stack_allocator.h"
 
 class MyClass {
     float myFloat;

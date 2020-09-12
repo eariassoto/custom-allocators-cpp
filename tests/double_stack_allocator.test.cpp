@@ -1,7 +1,7 @@
 // Copyright (c) 2020 Emmanuel Arias
 #include <catch.hpp>
 
-#include "DoubleStackAllocator.h"
+#include "double_stack_allocator.h"
 
 using Marker = DoubleStackAllocator::Marker;
 

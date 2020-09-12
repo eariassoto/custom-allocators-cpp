@@ -1,7 +1,7 @@
 // Copyright (c) 2020 Emmanuel Arias
 #include <catch.hpp>
 
-#include "PoolAllocator.h"
+#include "pool_allocator.h"
 
 TEST_CASE("Pool allocator has the proper available blocks after creation",
           "pool allocator") {

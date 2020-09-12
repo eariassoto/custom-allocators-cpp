@@ -1,4 +1,4 @@
-#include "DoubleStackAllocator.h"
+#include "double_stack_allocator.h"
 
 #include <cassert>
 #include <cstdlib>

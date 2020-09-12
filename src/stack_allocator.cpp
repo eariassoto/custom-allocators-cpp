@@ -1,4 +1,4 @@
-#include "StackAllocator.h"
+#include "stack_allocator.h"
 
 #include <cassert>
 #include <cstdlib>

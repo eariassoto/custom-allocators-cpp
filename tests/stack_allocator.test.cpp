@@ -1,6 +1,6 @@
 // Copyright (c) 2020 Emmanuel Arias
 #include <catch.hpp>
-#include "StackAllocator.h"
+#include "stack_allocator.h"
 
 using Marker = StackAllocator::Marker;
 
