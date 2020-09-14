@@ -22,9 +22,15 @@ void* PoolAllocator::AllocateBlock() {
     }
     void* blockPtr = m_FreeBlockListHead;
     assert(blockPtr != nullptr);
-    m_FreeBlockListHead =
-        reinterpret_cast<List*>(m_FreeBlockListHead->nextFreeBlock);
     m_AvailableBlocks -= 1;
+
+    if (m_AvailableBlocks > 0) {
+        m_FreeBlockListHead =
+            reinterpret_cast<List*>(m_FreeBlockListHead->nextFreeBlock);
+    } else {
+        m_FreeBlockListHead = nullptr;
+    }
+
     return blockPtr;
 }
 
@@ -32,7 +38,8 @@ void PoolAllocator::FreeBlock(void* blockPtr) {
     if (blockPtr < m_AllocatedMemory || blockPtr > m_LastAllocatedMemory) {
         return;
     }
-    size_t offsetFromMemory = reinterpret_cast<size_t>(blockPtr) - reinterpret_cast<size_t>(m_AllocatedMemory);
+    size_t offsetFromMemory = reinterpret_cast<size_t>(blockPtr) -
+                              reinterpret_cast<size_t>(m_AllocatedMemory);
     if ((offsetFromMemory % m_BlockSizeInBytes) != 0) {
         return;
     }
@@ -59,11 +66,7 @@ size_t PoolAllocator::GetAvailableBlocks() const { return m_AvailableBlocks; }
 
 void PoolAllocator::AddBlockToList(void* blockAddress) {
     List* newHead = new (blockAddress) List();
-    if (m_FreeBlockListHead == nullptr) {
-        m_FreeBlockListHead = newHead;
-    } else {
-        newHead->nextFreeBlock = m_FreeBlockListHead;
-        m_FreeBlockListHead = newHead;
-    }
+    newHead->nextFreeBlock = m_FreeBlockListHead;
+    m_FreeBlockListHead = newHead;
     m_AvailableBlocks += 1;
 }
