@@ -26,17 +26,13 @@ class PoolAllocator {
     size_t GetAvailableBlocks() const;
 
    private:
-    size_t m_BlockSizeInBytes = 0;
+    static constexpr char FLAG_BLOCK_ALLOCATED = 0x01;
+    static constexpr char FLAG_BLOCK_FREE = 0x00;
+    size_t m_RequestedBlockSizeInBytes = 0;
+    size_t m_ReadBlockSizeInBytes = 0;
     size_t m_PoolSize = 0;
 
     AdressList m_AddressList;
-    //size_t m_AvailableBlocks = 0;
-    //struct List {
-    //    void* nextFreeBlock = nullptr;
-    //};
-    //List* m_FreeBlockListHead = nullptr;
-
-    //void AddBlockToList(void* blockAddress);
 
     void* m_AllocatedMemory = 0;
     void* m_LastAllocatedMemory = 0;

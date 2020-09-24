@@ -44,6 +44,12 @@ TEST_CASE("Pool allocator can allocate and free elements", "pool allocator") {
 
     REQUIRE(allocator.GetAvailableBlocks() == 99);
 
+    // Check that memory cannot be double freed
+    allocator.FreeBlock(ptr1);
+    allocator.FreeBlock(ptr2);
+
+    REQUIRE(allocator.GetAvailableBlocks() == 99);
+
     p1->~Person();
     allocator.FreeBlock(reinterpret_cast<void*>(p1));
 

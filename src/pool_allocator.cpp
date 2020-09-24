@@ -4,12 +4,17 @@
 #include <cstdlib>
 
 PoolAllocator::PoolAllocator(size_t blockSizeInBytes, size_t poolSize)
-    : m_BlockSizeInBytes{blockSizeInBytes}, m_PoolSize{poolSize} {
+    : m_RequestedBlockSizeInBytes{blockSizeInBytes}, m_PoolSize{poolSize} {
     // Block size smaller than the size of a pointer is not supported yet
-    assert(m_BlockSizeInBytes > sizeof(void*));
+    assert(m_RequestedBlockSizeInBytes > sizeof(void*));
     assert(poolSize > 0);
 
-    m_AllocatedMemory = malloc(m_PoolSize * m_BlockSizeInBytes);
+    // Add one more byte at the end to mark allocated blocks and avoid
+    // multiple deallocation of the same block
+    m_ReadBlockSizeInBytes = m_RequestedBlockSizeInBytes + 1;
+
+    
+    m_AllocatedMemory = malloc(m_PoolSize * m_ReadBlockSizeInBytes);
 
     Clear();
 }
@@ -23,19 +28,34 @@ void* PoolAllocator::AllocateBlock() {
     void* blockPtr = m_AddressList.GetAddress();
     assert(blockPtr != nullptr);
 
+    char* blockFlag =
+        reinterpret_cast<char*>(blockPtr) + m_RequestedBlockSizeInBytes;
+    *blockFlag = FLAG_BLOCK_ALLOCATED;
+
     return blockPtr;
 }
 
 void PoolAllocator::FreeBlock(void* blockPtr) {
+    // Check that the address is within range
     if (blockPtr < m_AllocatedMemory || blockPtr > m_LastAllocatedMemory) {
         return;
     }
+
+    // Check that address is an actual block offset
     size_t offsetFromMemory = reinterpret_cast<size_t>(blockPtr) -
                               reinterpret_cast<size_t>(m_AllocatedMemory);
-    if ((offsetFromMemory % m_BlockSizeInBytes) != 0) {
+    if ((offsetFromMemory % m_ReadBlockSizeInBytes) != 0) {
         return;
     }
-    m_AddressList.AddAddress(blockPtr);
+
+    // Find the last byte at the end of the requested block size to mark it as
+    // allocated
+    char* blockFlag =
+        reinterpret_cast<char*>(blockPtr) + m_RequestedBlockSizeInBytes;
+    if (*blockFlag == FLAG_BLOCK_ALLOCATED) {
+        m_AddressList.AddAddress(blockPtr);
+        *blockFlag = FLAG_BLOCK_FREE;
+    }  
 }
 
 void PoolAllocator::Clear() {
@@ -49,7 +69,7 @@ void PoolAllocator::Clear() {
         void* currBlockPtr = reinterpret_cast<void*>(currentMemoryBlock);
         m_LastAllocatedMemory = currBlockPtr;
         m_AddressList.AddAddress(currBlockPtr);
-        currentMemoryBlock += m_BlockSizeInBytes;
+        currentMemoryBlock += m_ReadBlockSizeInBytes;
     }
 }
 
