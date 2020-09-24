@@ -17,19 +17,11 @@ PoolAllocator::PoolAllocator(size_t blockSizeInBytes, size_t poolSize)
 PoolAllocator::~PoolAllocator() { free(m_AllocatedMemory); }
 
 void* PoolAllocator::AllocateBlock() {
-    if (m_AvailableBlocks == 0) {
+    if (m_AddressList.GetListSize() == 0) {
         return nullptr;
     }
-    void* blockPtr = m_FreeBlockListHead;
+    void* blockPtr = m_AddressList.GetAddress();
     assert(blockPtr != nullptr);
-    m_AvailableBlocks -= 1;
-
-    if (m_AvailableBlocks > 0) {
-        m_FreeBlockListHead =
-            reinterpret_cast<List*>(m_FreeBlockListHead->nextFreeBlock);
-    } else {
-        m_FreeBlockListHead = nullptr;
-    }
 
     return blockPtr;
 }
@@ -43,30 +35,25 @@ void PoolAllocator::FreeBlock(void* blockPtr) {
     if ((offsetFromMemory % m_BlockSizeInBytes) != 0) {
         return;
     }
-    AddBlockToList(blockPtr);
+    m_AddressList.AddAddress(blockPtr);
 }
 
 void PoolAllocator::Clear() {
     assert(m_AllocatedMemory != nullptr);
 
-    m_AvailableBlocks = 0;
-    m_FreeBlockListHead = nullptr;
+    m_AddressList.Clear();
 
     uintptr_t currentMemoryBlock =
         reinterpret_cast<uintptr_t>(m_AllocatedMemory);
     for (size_t i = 0; i < m_PoolSize; ++i) {
         void* currBlockPtr = reinterpret_cast<void*>(currentMemoryBlock);
         m_LastAllocatedMemory = currBlockPtr;
-        AddBlockToList(currBlockPtr);
+        m_AddressList.AddAddress(currBlockPtr);
         currentMemoryBlock += m_BlockSizeInBytes;
     }
 }
 
-size_t PoolAllocator::GetAvailableBlocks() const { return m_AvailableBlocks; }
-
-void PoolAllocator::AddBlockToList(void* blockAddress) {
-    List* newHead = new (blockAddress) List();
-    newHead->nextFreeBlock = m_FreeBlockListHead;
-    m_FreeBlockListHead = newHead;
-    m_AvailableBlocks += 1;
+size_t PoolAllocator::GetAvailableBlocks() const {
+    return m_AddressList.GetListSize();
 }
+

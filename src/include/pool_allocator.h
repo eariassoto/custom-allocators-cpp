@@ -1,3 +1,4 @@
+#include "address_list.h"
 #pragma once
 
 class PoolAllocator {
@@ -27,13 +28,15 @@ class PoolAllocator {
    private:
     size_t m_BlockSizeInBytes = 0;
     size_t m_PoolSize = 0;
-    size_t m_AvailableBlocks = 0;
-    struct List {
-        void* nextFreeBlock = nullptr;
-    };
-    List* m_FreeBlockListHead = nullptr;
 
-    void AddBlockToList(void* blockAddress);
+    AdressList m_AddressList;
+    //size_t m_AvailableBlocks = 0;
+    //struct List {
+    //    void* nextFreeBlock = nullptr;
+    //};
+    //List* m_FreeBlockListHead = nullptr;
+
+    //void AddBlockToList(void* blockAddress);
 
     void* m_AllocatedMemory = 0;
     void* m_LastAllocatedMemory = 0;
